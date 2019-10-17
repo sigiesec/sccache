@@ -56,7 +56,7 @@ impl CCompilerImpl for GCC {
     where
         T: CommandCreatorSync,
     {
-        preprocess(creator, executable, parsed_args, cwd, env_vars, may_dist)
+        preprocess(creator, executable, parsed_args, cwd, env_vars, may_dist, self.kind())
     }
 
     fn generate_compile_commands(
@@ -418,6 +418,7 @@ pub fn preprocess<T>(
     cwd: &Path,
     env_vars: &[(OsString, OsString)],
     may_dist: bool,
+    kind: CCompilerKind,
 ) -> SFuture<process::Output>
 where
     T: CommandCreatorSync,
@@ -438,6 +439,11 @@ where
     if !may_dist && !parsed_args.profile_generate {
         cmd.arg("-P");
     }
+    match kind {
+       CCompilerKind::Clang => { cmd.arg("-frewrite-includes"); },
+       CCompilerKind::GCC => { cmd.arg("-fdirectives-only"); },
+        _ => (),
+    };
     cmd.arg(&parsed_args.input)
         .args(&parsed_args.preprocessor_args)
         .args(&parsed_args.common_args)

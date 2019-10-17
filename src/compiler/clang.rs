@@ -59,7 +59,7 @@ impl CCompilerImpl for Clang {
     where
         T: CommandCreatorSync,
     {
-        gcc::preprocess(creator, executable, parsed_args, cwd, env_vars, may_dist)
+        gcc::preprocess(creator, executable, parsed_args, cwd, env_vars, may_dist, self.kind())
     }
 
     fn generate_compile_commands(
